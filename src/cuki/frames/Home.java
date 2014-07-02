@@ -26,6 +26,7 @@ import java.awt.event.MouseEvent;
 public class Home extends JFrame {
 
 	private JPanel contentPane;
+	private static Home home;
 
 	/**
 	 * Launch the application.
@@ -34,8 +35,8 @@ public class Home extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Home frame = new Home();
-					frame.setVisible(true);
+					home = new Home();
+					home.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -43,12 +44,8 @@ public class Home extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 * 
-	 * 
-	 */
 	public Home() {
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 325);
 		contentPane = new JPanel();
@@ -79,8 +76,8 @@ public class Home extends JFrame {
 		btnIrrigar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				dispose();
-				MasterFrame i = new MasterFrame();
+				setVisible(false);
+				Irrigar i = new Irrigar(home);
 				i.setVisible(true);
 			}
 		});
@@ -93,6 +90,14 @@ public class Home extends JFrame {
 		contentPane.add(btnIrrigar);
 
 		JButton btnLamina = new JButton("L\u00E2minas");
+		btnLamina.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setVisible(false);
+				Laminas l = new Laminas(home);
+				l.setVisible(true);
+			}
+		});
 		btnLamina.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnLamina.setHorizontalTextPosition(SwingConstants.CENTER);
 		btnLamina.setVerticalTextPosition(SwingConstants.BOTTOM);
