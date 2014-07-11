@@ -1,7 +1,5 @@
 package cuki.frames;
 
-import java.awt.EventQueue;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -10,6 +8,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
@@ -21,16 +20,21 @@ import javax.swing.SwingConstants;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class Home extends JFrame {
 
 	private JPanel contentPane;
 	private static Home home;
+	private static Irrigar irrigar;
 
-	/**
-	 * Launch the application.
-	 */
+	// public static void main(String[] args) {
+	// home = new Home();
+	// home.setVisible(true);
+	// }
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -73,12 +77,12 @@ public class Home extends JFrame {
 		}
 
 		JButton btnIrrigar = new JButton("Irrigar");
-		btnIrrigar.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+		btnIrrigar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				Irrigar i = new Irrigar(home);
-				i.setVisible(true);
+				irrigar = new Irrigar(home);
+				irrigar.setVisible(true);
+				irrigar.start();
 			}
 		});
 		btnIrrigar.setIcon(new ImageIcon(Home.class
