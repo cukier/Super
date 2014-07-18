@@ -80,7 +80,6 @@ public class Home extends JFrame {
 		btnIrrigar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				// irrigar = new Irrigar(home);
 				MasterFrame mf = new MasterFrame(home, new ConnectionModbus(
 						"COM1"), 1, MasterFrame.irrigar);
 				mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
