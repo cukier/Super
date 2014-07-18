@@ -17,6 +17,8 @@ import java.awt.event.ActionListener;
 
 import cuki.proc.ConnectionModbus;
 import cuki.proc.KModbus;
+import cuki.proc.Mapa;
+
 import javax.swing.JLabel;
 
 import java.awt.Font;
@@ -28,6 +30,8 @@ import java.awt.ComponentOrientation;
 
 import javax.swing.Box;
 
+import net.wimpi.modbus.util.ModbusUtil;
+
 import java.awt.Dimension;
 
 @SuppressWarnings("serial")
@@ -38,8 +42,8 @@ public class MasterFrame extends JFrame {
 	protected ConnectionModbus m_con = null;
 
 	private JPanel jp = null;
-	private JLabel lblHora = null;
-	private JLabel idPivo = null;
+	private JLabel lblData = null;
+	private JLabel lblIdPivo = null;
 
 	public final static int irrigar = 0;
 
@@ -83,20 +87,20 @@ public class MasterFrame extends JFrame {
 		Component horizontalGlue = Box.createHorizontalGlue();
 		menuBar.add(horizontalGlue);
 
-		idPivo = new JLabel("Conectando...");
-		idPivo.setForeground(Color.LIGHT_GRAY);
-		idPivo.setHorizontalAlignment(SwingConstants.CENTER);
-		idPivo.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		menuBar.add(idPivo);
+		lblIdPivo = new JLabel("Conectando...");
+		lblIdPivo.setForeground(Color.LIGHT_GRAY);
+		lblIdPivo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblIdPivo.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		menuBar.add(lblIdPivo);
 
 		Component rigidArea = Box.createRigidArea(new Dimension(20, 20));
 		menuBar.add(rigidArea);
 
-		lblHora = new JLabel("00 : 00");
-		lblHora.setForeground(Color.LIGHT_GRAY);
-		lblHora.setHorizontalAlignment(SwingConstants.CENTER);
-		lblHora.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		menuBar.add(lblHora);
+		lblData = new JLabel("00 : 00");
+		lblData.setForeground(Color.LIGHT_GRAY);
+		lblData.setHorizontalAlignment(SwingConstants.CENTER);
+		lblData.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		menuBar.add(lblData);
 
 		setJMenuBar(menuBar);
 
@@ -109,14 +113,46 @@ public class MasterFrame extends JFrame {
 		SwingWorker worker = new SwingWorker() {
 			@Override
 			protected Object doInBackground() throws Exception {
+				int segundos = 30;
 				while (true) {
-					if (jp instanceof Irrigar) {
-						// int[] resp = k.read(Mapa.horasRestantes, 8);
-						Irrigar i = (Irrigar) jp;
-						i.sync(k);
-					}
-
 					try {
+						if (jp instanceof Irrigar) {
+							((Irrigar) jp).sync(k.read(Mapa.irrigarPanel,
+									Mapa.irrigarPanelLen));
+						}
+
+						if (segundos == 30) {
+							segundos = 0;
+
+							Thread.sleep(1000);
+
+							int[] resp = k.read(Mapa.masterPanel,
+									Mapa.masterPanelLen);
+
+							String data = resp[1] + "/" + resp[0] + "    "
+									+ resp[2] + " : " + resp[3];
+
+							lblData.setText(data);
+
+							int[] strId = new int[10];
+							for (int i = 0; i < strId.length; ++i)
+								strId[i] = resp[i + 4];
+
+							StringBuffer sb = new StringBuffer();
+							for (int i : strId) {
+								byte[] b = ModbusUtil
+										.shortToRegister((short) i);
+								sb.append((char) b[1]);
+								sb.append((char) b[0]);
+								if (b[0] == 0 || b[1] == 0) {
+									break;
+								}
+							}
+
+							lblIdPivo.setText(sb.toString());
+						}
+						repaint();
+						++segundos;
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();

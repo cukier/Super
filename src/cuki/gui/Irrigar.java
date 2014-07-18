@@ -1,44 +1,78 @@
 package cuki.gui;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import net.miginfocom.swing.MigLayout;
-import cuki.proc.KModbus;
-import cuki.proc.Mapa;
-
 import javax.swing.JLabel;
+
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import net.miginfocom.swing.MigLayout;
+
+import java.awt.Component;
+
+import javax.swing.SwingConstants;
+import java.awt.Font;
 
 @SuppressWarnings("serial")
 public class Irrigar extends JPanel {
 
-	private Pizza pizza = null;
+	private boolean debug = true;
 
-	private JLabel lblEstado;
-	private JLabel lblSetor;
-	private JLabel lblLmina;
-	private JLabel lblTempo;
+	private Pizza pizza = null;
+	private JLabel lblEstado = null;
+	private JLabel lblSetor = null;
+	private JLabel lblLmina = null;
+	private JLabel lblTempo = null;
 
 	public Irrigar() {
-
-		setLayout(new MigLayout());
+		setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		pizza = new Pizza();
-		add(pizza, "span 1 4");
+		add(pizza);
 
-		String str = "No Conn";
+		JPanel panel = new JPanel();
+		panel.setPreferredSize(pizza.getPreferredSize());
+		add(panel);
+		panel.setLayout(new MigLayout("", "[]", "[][][][]"));
 
-		lblEstado = new JLabel(str);
-		add(lblEstado, "wrap");
+		lblEstado = new JLabel("Conectando...");
+		lblEstado.setFont(new Font("Lucida Console", Font.PLAIN, 22));
+		lblEstado.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblEstado.setHorizontalAlignment(SwingConstants.CENTER);
+		lblEstado.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblEstado.setMinimumSize(new Dimension(pizza.getPreferredSize().width,
+				pizza.getPreferredSize().height / 5));
+		panel.add(lblEstado, "cell 0 0,grow");
 
-		lblSetor = new JLabel(str);
-		add(lblSetor, "wrap");
+		lblSetor = new JLabel("Conectando...");
+		lblSetor.setFont(new Font("Lucida Console", Font.PLAIN, 22));
+		lblSetor.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblSetor.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSetor.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblSetor.setMinimumSize(new Dimension(pizza.getPreferredSize().width,
+				pizza.getPreferredSize().height / 5));
+		panel.add(lblSetor, "flowy,cell 0 1,grow");
 
-		lblLmina = new JLabel(str);
-		add(lblLmina, "wrap");
+		lblLmina = new JLabel("Conectando...");
+		lblLmina.setFont(new Font("Lucida Console", Font.PLAIN, 22));
+		lblLmina.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblLmina.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLmina.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblLmina.setMinimumSize(new Dimension(pizza.getPreferredSize().width,
+				pizza.getPreferredSize().height / 5));
+		panel.add(lblLmina, "cell 0 2,grow");
 
-		lblTempo = new JLabel(str);
-		add(lblTempo, "wrap");
+		lblTempo = new JLabel("Conectando...");
+		lblTempo.setFont(new Font("Lucida Console", Font.PLAIN, 22));
+		lblTempo.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblTempo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTempo.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblTempo.setMinimumSize(new Dimension(pizza.getPreferredSize().width,
+				pizza.getPreferredSize().height / 5));
+		panel.add(lblTempo, "cell 0 3,grow");
+
 	}
 
 	private String setLblEstado(int estado) {
@@ -80,17 +114,33 @@ public class Irrigar extends JPanel {
 		return ret;
 	}
 
-	public void sync(final KModbus m_k) {
+	public void sync(int[] resp) {
 
-		int[] resp = m_k.read(Mapa.horasRestantes, 8);
+		int[] anguloAux = new int[4];
+		for (int i = 0; i < 4; ++i)
+			anguloAux[i] = resp[i];
 
-		pizza.setAnguloAtual(resp[3]);
-		lblEstado.setText(setLblEstado(resp[5]));
-		lblSetor.setText("Setor : " + resp[2] + " / " + resp[4]);
-		lblLmina.setText("Lâmina : " + resp[6] + "mm - " + resp[7] + "%");
-		lblTempo.setText("Tempo : " + resp[0] + "h " + resp[1] + "min");
+		pizza.setNrSetores(resp[10]);
+		pizza.setAnguloFInalSetores(anguloAux);
+		pizza.setAnguloAtual(resp[9]);
+		lblEstado.setText(setLblEstado(resp[11]));
+		lblSetor.setText("Setor : " + resp[8] + " / " + resp[10]);
+		lblLmina.setText("Lâmina : " + resp[12] + "mm - " + resp[13] + "%");
+		lblTempo.setText("Tempo : " + resp[6] + "h " + resp[7] + "min");
 
-		repaint();
+		if (debug) {
+			for (int i = 0; i < anguloAux.length; ++i)
+				System.out.println("Setor Angulo" + i + " : " + anguloAux[i]);
+			System.out.println("horas restantes: " + resp[6]);
+			System.out.println("minutos restantes: " + resp[7]);
+			System.out.println("setor atual: " + resp[8]);
+			System.out.println("angulo atual: " + resp[9]);
+			System.out.println("nr setores: " + resp[10]);
+			System.out.println("estado irrigacao: " + resp[11] + " = "
+					+ setLblEstado(resp[11]));
+			System.out.println("lamina aplicada: " + resp[12]);
+			System.out.println("porcentagem aplicada: " + resp[13]);
+		}
 	}
 
 	public static void main(String[] args) {

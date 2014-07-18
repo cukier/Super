@@ -29,6 +29,7 @@ public class Home extends JFrame {
 
 	private JPanel contentPane;
 	private static Home home;
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
