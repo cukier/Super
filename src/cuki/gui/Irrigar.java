@@ -1,25 +1,17 @@
 package cuki.gui;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
+import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 
-import java.awt.Component;
-
-import javax.swing.SwingConstants;
 import java.awt.Font;
-import javax.swing.border.TitledBorder;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
 
 @SuppressWarnings("serial")
 public class Irrigar extends JPanel {
 
-	private boolean debug = true;
+	private boolean debug = false;
 
 	private Pizza pizza = null;
 	private JLabel lblEstado = null;
@@ -28,14 +20,15 @@ public class Irrigar extends JPanel {
 	private JLabel lblTempo = null;
 
 	public Irrigar() {
-		setLayout(new GridLayout(0, 2, 0, 0));
+
+		setLayout(new MigLayout("", "[300px,grow][300px,grow]", "[grow]"));
 
 		pizza = new Pizza();
-		add(pizza);
+		pizza.setBackground(Color.WHITE);
+		add(pizza, "cell 0 0,alignx center,aligny center");
 
 		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Conectando..",
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel.setBackground(Color.WHITE);
 		panel.setLayout(new MigLayout("", "[grow]", "[grow][grow][grow][grow]"));
 
 		lblEstado = new JLabel("Conectando...");
@@ -54,7 +47,7 @@ public class Irrigar extends JPanel {
 		lblTempo.setFont(new Font("Lucida Console", Font.PLAIN, 18));
 		panel.add(lblTempo, "cell 0 3,alignx center,aligny center");
 
-		add(panel);
+		add(panel, "cell 1 0,grow");
 	}
 
 	private String setLblEstado(int estado) {
@@ -123,23 +116,5 @@ public class Irrigar extends JPanel {
 			System.out.println("lamina aplicada: " + resp[12]);
 			System.out.println("porcentagem aplicada: " + resp[13]);
 		}
-	}
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				JFrame frame = new JFrame();
-
-				Irrigar i = new Irrigar();
-
-				frame.setContentPane(i);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.pack();
-				frame.setVisible(true);
-
-				System.out.println(i.getSize());
-			}
-		});
 	}
 }

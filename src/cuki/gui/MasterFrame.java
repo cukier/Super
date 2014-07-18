@@ -3,9 +3,6 @@ package cuki.gui;
 import javax.swing.JFrame;
 
 import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-
 import javax.swing.JMenuBar;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
@@ -56,6 +53,7 @@ public class MasterFrame extends JFrame {
 		switch (tipoPane) {
 		case MasterFrame.irrigar:
 			jp = new Irrigar();
+			jp.setBackground(Color.WHITE);
 			break;
 		}
 
@@ -80,6 +78,9 @@ public class MasterFrame extends JFrame {
 					frame.setVisible(true);
 			}
 		});
+
+		Component rigidArea_2 = Box.createRigidArea(new Dimension(20, 20));
+		menuBar.add(rigidArea_2);
 		btnHome.setIcon(new ImageIcon(MasterFrame.class
 				.getResource("/ico/house36.png")));
 		menuBar.add(btnHome);
@@ -103,6 +104,9 @@ public class MasterFrame extends JFrame {
 		menuBar.add(lblData);
 
 		setJMenuBar(menuBar);
+
+		Component rigidArea_1 = Box.createRigidArea(new Dimension(20, 20));
+		menuBar.add(rigidArea_1);
 
 		setContentPane(jp);
 	}
@@ -142,11 +146,14 @@ public class MasterFrame extends JFrame {
 							for (int i : strId) {
 								byte[] b = ModbusUtil
 										.shortToRegister((short) i);
-								sb.append((char) b[1]);
-								sb.append((char) b[0]);
-								if (b[0] == 0 || b[1] == 0) {
+								if (b[1] != 0)
+									sb.append((char) b[1]);
+								else
 									break;
-								}
+								if (b[0] != 0)
+									sb.append((char) b[0]);
+								else
+									break;
 							}
 
 							lblIdPivo.setText(sb.toString());
@@ -161,40 +168,5 @@ public class MasterFrame extends JFrame {
 			}
 		};
 		worker.execute();
-	}
-
-	public static void main(String[] args) {
-
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final JFrame f = new JFrame();
-
-				JButton btn = new JButton("Irrigar");
-
-				btn.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-
-						f.setVisible(false);
-
-						MasterFrame mf = new MasterFrame(f,
-								new ConnectionModbus("COM1"), 1, 0);
-						mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-						mf.pack();
-						mf.setVisible(true);
-						mf.start();
-					}
-				});
-
-				f.getContentPane().setLayout(new FlowLayout());
-				f.getContentPane().add(btn);
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				f.pack();
-				f.setVisible(true);
-			}
-		});
 	}
 }
