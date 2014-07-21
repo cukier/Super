@@ -15,6 +15,7 @@ import java.awt.Color;
 import javax.swing.SwingConstants;
 
 import cuki.proc.ConnectionModbus;
+
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,10 +43,20 @@ public class Home extends JFrame {
 
 	public Home() {
 
+		// try {
+		// for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		// if ("Nimbus".equals(info.getName())) {
+		// UIManager.setLookAndFeel(info.getClassName());
+		// break;
+		// }
+		// // System.out.println(info.getName());
+		// }
+		// } catch (Exception e) {
+		// }
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 365);
 		contentPane = new JPanel();
-		contentPane.setForeground(Color.BLACK);
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);

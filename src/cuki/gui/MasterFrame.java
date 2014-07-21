@@ -52,7 +52,7 @@ public class MasterFrame extends JFrame {
 
 		switch (tipoPane) {
 		case MasterFrame.irrigar:
-			jp = new Irrigar();
+			jp = new Irrigar(k);
 			jp.setBackground(Color.WHITE);
 			break;
 		}
@@ -111,6 +111,10 @@ public class MasterFrame extends JFrame {
 		setContentPane(jp);
 	}
 
+	public void sendCommand(int index, boolean value) {
+		k.sendBool(index, 0, value);
+	}
+
 	public void start() {
 
 		@SuppressWarnings("rawtypes")
@@ -120,11 +124,6 @@ public class MasterFrame extends JFrame {
 				int segundos = 30;
 				while (true) {
 					try {
-						if (jp instanceof Irrigar) {
-							((Irrigar) jp).sync(k.read(Mapa.irrigarPanel,
-									Mapa.irrigarPanelLen));
-						}
-
 						if (segundos == 30) {
 							segundos = 0;
 
@@ -158,6 +157,11 @@ public class MasterFrame extends JFrame {
 
 							lblIdPivo.setText(sb.toString());
 						}
+
+						if (jp instanceof Irrigar) {
+							((Irrigar) jp).sync();
+						}
+
 						repaint();
 						++segundos;
 						Thread.sleep(1000);
