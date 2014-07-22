@@ -1,35 +1,31 @@
 package cuki.gui;
 
-import javax.swing.JFrame;
+import gnu.io.NoSuchPortException;
 
-import java.awt.Color;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.Box;
 import javax.swing.JMenuBar;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
 
 import cuki.proc.ConnectionModbus;
 import cuki.proc.KModbus;
 import cuki.proc.Mapa;
-
-import javax.swing.JLabel;
-
-import java.awt.Font;
-
-import javax.swing.SwingConstants;
-
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-
-import javax.swing.Box;
-
+import net.wimpi.modbus.ModbusException;
+import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.util.ModbusUtil;
-
-import java.awt.Dimension;
 
 @SuppressWarnings("serial")
 public class MasterFrame extends JFrame {
@@ -42,7 +38,14 @@ public class MasterFrame extends JFrame {
 	private JLabel lblData = null;
 	private JLabel lblIdPivo = null;
 
-	public final static int irrigar = 0;
+	public final static int panelNull = 0;
+	public final static int panelIrrigar = 1;
+	public final static int panellaminas = 2;
+	public final static int panelSetores = 3;
+	public final static int panelDeslocamento = 4;
+	public final static int panelProgramador = 5;
+	public final static int panelConfig = 6;
+	public final static int panelAdm = 7;
 
 	public MasterFrame(final JFrame frame, ConnectionModbus con,
 			int addrDevice, int tipoPane) {
@@ -51,9 +54,12 @@ public class MasterFrame extends JFrame {
 		k = new KModbus(con, addrDevice);
 
 		switch (tipoPane) {
-		case MasterFrame.irrigar:
+		case MasterFrame.panelIrrigar:
 			jp = new Irrigar(k);
 			jp.setBackground(Color.WHITE);
+			break;
+		case MasterFrame.panellaminas:
+			jp = new Laminas();
 			break;
 		}
 
@@ -111,61 +117,77 @@ public class MasterFrame extends JFrame {
 		setContentPane(jp);
 	}
 
-	public void sendCommand(int index, boolean value) {
-		k.sendBool(index, 0, value);
-	}
-
 	public void start() {
 
 		@SuppressWarnings("rawtypes")
 		SwingWorker worker = new SwingWorker() {
 			@Override
-			protected Object doInBackground() throws Exception {
+			protected Object doInBackground() throws NoSuchPortException,
+					ModbusIOException {
 				int segundos = 30;
 				while (true) {
-					try {
-						if (segundos == 30) {
-							segundos = 0;
+					if (segundos == 30) {
+						segundos = 0;
 
+						try {
 							Thread.sleep(1000);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 
-							int[] resp = k.read(Mapa.masterPanel,
-									Mapa.masterPanelLen);
+						int[] resp = null;
 
-							String data = resp[1] + "/" + resp[0] + "    "
-									+ resp[2] + " : " + resp[3];
+						resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
 
-							lblData.setText(data);
+						if (resp != null) {
+							int aux = 0;
+							for (int i : resp)
+								aux |= i;
 
-							int[] strId = new int[10];
-							for (int i = 0; i < strId.length; ++i)
-								strId[i] = resp[i + 4];
+							if (aux == 0) {
+								lblData.setText("");
+								lblIdPivo
+										.setText("Erro de Conexão. Tentando de novo.");
+							} else {
 
-							StringBuffer sb = new StringBuffer();
-							for (int i : strId) {
-								byte[] b = ModbusUtil
-										.shortToRegister((short) i);
-								if (b[1] != 0)
-									sb.append((char) b[1]);
-								else
-									break;
-								if (b[0] != 0)
-									sb.append((char) b[0]);
-								else
-									break;
+								String data = resp[1] + "/" + resp[0] + "    "
+										+ resp[2] + " : " + resp[3];
+
+								lblData.setText(data);
+
+								int[] strId = new int[10];
+								for (int i = 0; i < strId.length; ++i)
+									strId[i] = resp[i + 4];
+
+								StringBuffer sb = new StringBuffer();
+								for (int i : strId) {
+									byte[] b = ModbusUtil
+											.shortToRegister((short) i);
+									if (b[1] != 0)
+										sb.append((char) b[1]);
+									else
+										break;
+									if (b[0] != 0)
+										sb.append((char) b[0]);
+									else
+										break;
+								}
+
+								lblIdPivo.setText(sb.toString());
 							}
-
-							lblIdPivo.setText(sb.toString());
 						}
+					}
 
-						if (jp instanceof Irrigar) {
-							((Irrigar) jp).sync();
-						}
+					if (jp instanceof Irrigar) {
+						((Irrigar) jp).sync();
+					}
 
-						repaint();
-						++segundos;
+					repaint();
+					++segundos;
+
+					try {
 						Thread.sleep(1000);
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
