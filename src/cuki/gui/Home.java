@@ -12,8 +12,6 @@ import java.awt.FlowLayout;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
-import cuki.proc.ConnectionModbus;
-
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -22,8 +20,6 @@ import java.awt.event.ActionEvent;
 public class Home extends JFrame implements ActionListener {
 
 	private static Home home;
-	private static ConnectionModbus con;
-	private static int address;
 
 	private JPanel contentPane;
 
@@ -49,8 +45,6 @@ public class Home extends JFrame implements ActionListener {
 	}
 
 	public Home() {
-
-		con = new ConnectionModbus("COM1");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 365);
@@ -163,7 +157,7 @@ public class Home extends JFrame implements ActionListener {
 		else if (e.getSource() == btnLamina)
 			tipoPainel = MasterFrame.panellaminas;
 
-		MasterFrame mf = new MasterFrame(home, con, address, tipoPainel);
+		MasterFrame mf = new MasterFrame(home, "COM1", 1, tipoPainel);
 		mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mf.pack();
 		mf.setVisible(true);

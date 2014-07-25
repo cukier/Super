@@ -32,7 +32,8 @@ public class MasterFrame extends JFrame {
 
 	public static KModbus k = null;
 
-	protected ConnectionModbus m_con = null;
+	private String m_port;
+	private int m_addr;
 
 	private JPanel jp = null;
 	private JLabel lblData = null;
@@ -47,15 +48,15 @@ public class MasterFrame extends JFrame {
 	public final static int panelConfig = 6;
 	public final static int panelAdm = 7;
 
-	public MasterFrame(final JFrame frame, ConnectionModbus con,
-			int addrDevice, int tipoPane) {
+	public MasterFrame(final JFrame frame, String port, int addrDevice,
+			int tipoPane) {
 
-		m_con = con;
-		k = new KModbus(con, addrDevice);
+		m_port = port;
+		m_addr = addrDevice;
 
 		switch (tipoPane) {
 		case MasterFrame.panelIrrigar:
-			jp = new Irrigar(k);
+			jp = new Irrigar(m_port, m_addr);
 			jp.setBackground(Color.WHITE);
 			break;
 		case MasterFrame.panellaminas:

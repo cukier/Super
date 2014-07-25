@@ -1,14 +1,17 @@
 package cuki.gui;
 
+import gnu.io.NoSuchPortException;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.miginfocom.swing.MigLayout;
-
-import cuki.proc.ConnectionModbus;
+import net.wimpi.modbus.ModbusIOException;
 import cuki.proc.KModbus;
 import cuki.proc.Mapa;
 
@@ -21,24 +24,39 @@ import java.awt.event.ActionEvent;
 public class Irrigar extends JPanel {
 
 	private KModbus m_k = null;
+
 	private Pizza pizza = null;
+
 	private JLabel lblEstado = null;
 	private JLabel lblSetor = null;
 	private JLabel lblLmina = null;
 	private JLabel lblTempo = null;
 	private JLabel lblAnguloAtual = null;
+	private JLabel lblFooter = null;
+
 	private JButton btnSentido = null;
 	private JButton btnBInjetora = null;
 	private JButton btnIrriga = null;
 	private JButton btnStatus = null;
+
 	private boolean debug = true;
 	private boolean sentido = false;
 	private boolean inicioIrriga = false;
 	private boolean bInjetora = false;
+	private boolean ctlrStatus = false;
+
 	private Font font = null;
 
-	public Irrigar(KModbus k) {
-		m_k = k;
+	private int m_addr;
+
+	private String m_port;
+	private static final String commErr = "Erro de comunicação, Reconectando...";
+	private static final String dispErr = "Disposivo não conectado ou porta de comunicação ocupada";
+
+	public Irrigar(String port, int addr) {
+
+		m_port = port;
+		m_addr = addr;
 
 		setBackground(Color.WHITE);
 		setLayout(new MigLayout("", "[600px,center]", "[][]"));
@@ -79,11 +97,26 @@ public class Irrigar extends JPanel {
 
 		panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setLayout(new MigLayout());
-
-		add(panel);
+		panel.setLayout(new MigLayout("", "[]", "[grow][grow]"));
 
 		btnSentido = new JButton("");
+		btnSentido.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sentido = !sentido;
+				m_k.sendBool(Mapa.sentido, Mapa.word0, sentido);
+				if (sentido) {
+					btnSentido.setSelectedIcon(new ImageIcon(Irrigar.class
+							.getResource("/ico/clockwise1.png")));
+					btnSentido.setIcon(new ImageIcon(Irrigar.class
+							.getResource("/ico/circular2062.png")));
+				} else {
+					btnSentido.setSelectedIcon(new ImageIcon(Irrigar.class
+							.getResource("/ico/counterclockwise1.png")));
+					btnSentido.setIcon(new ImageIcon(Irrigar.class
+							.getResource("/ico/circular206.png")));
+				}
+			}
+		});
 		btnSentido.setSelectedIcon(new ImageIcon(Irrigar.class
 				.getResource("/ico/clockwise1.png")));
 		btnSentido.setIcon(new ImageIcon(Irrigar.class
@@ -105,7 +138,13 @@ public class Irrigar extends JPanel {
 				repaint();
 			}
 		});
-		panel.add(btnBInjetora, "alignx center,aligny center,wrap");
+		panel.add(btnBInjetora, "alignx center,aligny center");
+
+		btnStatus = new JButton();
+		btnStatus.setBackground(Color.WHITE);
+		btnStatus.setIcon(new ImageIcon(Irrigar.class
+				.getResource("/ico/live2.png")));
+		panel.add(btnStatus, "spany 2,alignx center,aligny center,wrap");
 
 		btnIrriga = new JButton("Irrigar");
 		btnIrriga.setFont(font);
@@ -125,7 +164,11 @@ public class Irrigar extends JPanel {
 		});
 		panel.add(btnIrriga, "alignx center,aligny center");
 
-		btnStatus = new JButton();
+		add(panel, "wrap");
+
+		lblFooter = new JLabel("Tela Irrigação");
+		lblFooter.setFont(font);
+		add(lblFooter, "spanx ,alignx left,aligny center");
 	}
 
 	private String setLblEstado(int estado) {
@@ -169,10 +212,20 @@ public class Irrigar extends JPanel {
 
 	public void sync() {
 
-		int[] word = null;
-		word = m_k.read(0, 2);
+		m_k = new KModbus(m_port, m_addr);
 
-		if (word != null) {
+		int[] word = null;
+		try {
+			word = m_k.read(0, 2);
+		} catch (ModbusIOException e) {
+			System.out.println(commErr);
+			lblFooter.setText(commErr);
+		} catch (NoSuchPortException e) {
+			System.out.println(dispErr);
+			lblFooter.setText(dispErr);
+		}
+
+		if (word != null && word[0] != 0 && word[1] != 0) {
 
 			try {
 				Thread.sleep(500);
@@ -181,7 +234,15 @@ public class Irrigar extends JPanel {
 			}
 
 			int[] resp = null;
-			resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
+			try {
+				resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
+			} catch (ModbusIOException e) {
+				e.printStackTrace();
+			} catch (NoSuchPortException e) {
+				e.printStackTrace();
+			} finally {
+				m_k = null;
+			}
 
 			if (resp != null) {
 				int[] anguloAux = new int[6];
@@ -246,25 +307,45 @@ public class Irrigar extends JPanel {
 					System.out.println("bInjetora: " + bInjetora);
 				}
 			}
+		} else {
+			if (ctlrStatus) {
+				ctlrStatus = false;
+				btnStatus.setIcon(new ImageIcon(Irrigar.class
+						.getResource("/ico/live2.png")));
+			} else {
+				ctlrStatus = true;
+				btnStatus.setIcon(new ImageIcon(Irrigar.class
+						.getResource("/ico/live2am.png")));
+			}
 		}
 	}
 
 	public static void main(String[] args) throws InterruptedException {
 
-		KModbus k = new KModbus(new ConnectionModbus("COM1"), 1);
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			// If Nimbus is not available, you can set the GUI to another look
+			// and feel.
+		}
 
 		JFrame frame = new JFrame();
 
-		Irrigar contentPane = new Irrigar(k);
+		Irrigar contentPane = new Irrigar("COM1", 1);
 
 		frame.setContentPane(contentPane);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
+		Thread.sleep(1000);
 
 		while (true) {
 			contentPane.sync();
-			frame.repaint();
 			Thread.sleep(1000);
 		}
 
