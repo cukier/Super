@@ -45,15 +45,13 @@ public class Irrigar extends JPanel {
 	private boolean bInjetora = false;
 	private boolean ctlrStatus = false;
 
-	private Font font = null;
-
 	private int m_addr;
 
 	private String m_port;
 	private static final String commErr = "Erro de comunicação, Reconectando...";
 	private static final String dispErr = "Disposivo não conectado ou porta de comunicação ocupada";
 
-	public Irrigar(String port, int addr) {
+	public Irrigar(String port, int addr, Font font) {
 
 		m_port = port;
 		m_addr = addr;
@@ -70,8 +68,6 @@ public class Irrigar extends JPanel {
 		panel.setBackground(Color.WHITE);
 		panel.setLayout(new MigLayout("", "[grow]",
 				"[grow][grow][grow][grow][grow]"));
-
-		font = new Font("Lucida Console", Font.PLAIN, 18);
 
 		lblEstado = new JLabel("");
 		lblEstado.setFont(font);
@@ -102,6 +98,7 @@ public class Irrigar extends JPanel {
 		btnSentido = new JButton("");
 		btnSentido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				m_k = new KModbus(m_port, m_addr);
 				sentido = !sentido;
 				m_k.sendBool(Mapa.sentido, Mapa.word0, sentido);
 				if (sentido) {
@@ -129,12 +126,16 @@ public class Irrigar extends JPanel {
 		btnBInjetora.setBackground(Color.WHITE);
 		btnBInjetora.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				m_k = new KModbus(m_port, m_addr);
 				bInjetora = !bInjetora;
 				m_k.sendBool(Mapa.bInjetora, Mapa.word1, bInjetora);
-				if (bInjetora)
+				if (bInjetora) {
 					btnBInjetora.setText("Desligar Bomba Injetora");
-				else
+					btnBInjetora.setBackground(Color.RED);
+				} else {
 					btnBInjetora.setText("Ligar Bomba Injetora");
+					btnBInjetora.setBackground(Color.WHITE);
+				}
 				repaint();
 			}
 		});
@@ -151,6 +152,7 @@ public class Irrigar extends JPanel {
 		btnIrriga.setBackground(Color.WHITE);
 		btnIrriga.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				m_k = new KModbus(m_port, m_addr);
 				if (inicioIrriga) {
 					m_k.sendBool(Mapa.pararIrriga, Mapa.word0, true);
 					btnIrriga.setText("Parar Irrigação");
@@ -225,7 +227,7 @@ public class Irrigar extends JPanel {
 			lblFooter.setText(dispErr);
 		}
 
-		if (word != null && word[0] != 0 && word[1] != 0) {
+		if (word != null && (word[0] != 0 | word[1] != 0)) {
 
 			try {
 				Thread.sleep(500);
@@ -336,7 +338,8 @@ public class Irrigar extends JPanel {
 
 		JFrame frame = new JFrame();
 
-		Irrigar contentPane = new Irrigar("COM1", 1);
+		Irrigar contentPane = new Irrigar("COM8", 1, new Font("Lucida Console",
+				Font.PLAIN, 18));
 
 		frame.setContentPane(contentPane);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

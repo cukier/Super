@@ -20,10 +20,8 @@ import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 
-import cuki.proc.ConnectionModbus;
 import cuki.proc.KModbus;
 import cuki.proc.Mapa;
-import net.wimpi.modbus.ModbusException;
 import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.util.ModbusUtil;
 
@@ -39,6 +37,8 @@ public class MasterFrame extends JFrame {
 	private JLabel lblData = null;
 	private JLabel lblIdPivo = null;
 
+	private Font m_font = null;
+
 	public final static int panelNull = 0;
 	public final static int panelIrrigar = 1;
 	public final static int panellaminas = 2;
@@ -53,10 +53,11 @@ public class MasterFrame extends JFrame {
 
 		m_port = port;
 		m_addr = addrDevice;
+		m_font = new Font("Lucida Console", Font.PLAIN, 18);
 
 		switch (tipoPane) {
 		case MasterFrame.panelIrrigar:
-			jp = new Irrigar(m_port, m_addr);
+			jp = new Irrigar(m_port, m_addr, m_font);
 			jp.setBackground(Color.WHITE);
 			break;
 		case MasterFrame.panellaminas:
