@@ -56,12 +56,12 @@ public class MasterFrame extends JFrame {
 		switch (tipoPane) {
 		case MasterFrame.panelIrrigar:
 			jp = new Irrigar(m_port, m_addr, m_font);
-			jp.setBackground(Color.WHITE);
 			break;
 		case MasterFrame.panellaminas:
 			jp = new Laminas(m_port, m_addr, m_font);
 			break;
 		}
+		jp.setBackground(Color.WHITE);
 
 		createGUI(frame, jp);
 	}
@@ -124,8 +124,12 @@ public class MasterFrame extends JFrame {
 			@Override
 			protected Object doInBackground() {
 				while (true) {
-					int[] resp = null;
-					resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
+
+					k = new KModbus("COM8", 1);
+
+					int[] resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
+
+					k = null;
 
 					if (resp != null) {
 						lblData.setText(resp[1] + "/" + resp[0] + " " + resp[2]
