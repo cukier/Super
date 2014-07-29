@@ -1,7 +1,5 @@
 package cuki.gui;
 
-import gnu.io.NoSuchPortException;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -11,7 +9,6 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.miginfocom.swing.MigLayout;
-import net.wimpi.modbus.ModbusIOException;
 import cuki.proc.KModbus;
 import cuki.proc.Mapa;
 
@@ -48,8 +45,16 @@ public class Irrigar extends JPanel {
 	private int m_addr;
 
 	private String m_port;
-	private static final String commErr = "Erro de comunicação, Reconectando...";
-	private static final String dispErr = "Disposivo não conectado ou porta de comunicação ocupada";
+	// private static final String commErr =
+	// "Erro de comunicação, Reconectando...";
+	// private static final String dispErr =
+	// "Disposivo não conectado ou porta de comunicação ocupada";
+
+	private String[] lblStatusArr = { "Estado : Parado", "Estado : Motobomba",
+			"Estado : Irrigando", "Estado : Pico Energético",
+			"Estado : Alarme Pressão", "Estado : Fim de Irrigação",
+			"Estado : Movimentando", "Estado : Alarme Alinhamento",
+			"Estado : Painel no Manual" };
 
 	public Irrigar(String port, int addr, Font font) {
 
@@ -174,42 +179,9 @@ public class Irrigar extends JPanel {
 	}
 
 	private String setLblEstado(int estado) {
-		String ret = "";
-		switch (estado) {
-		case 0:
-			ret = "Estado : Parado";
-			break;
-		case 1:
-			ret = "Estado : Motobomba";
-			break;
-		case 2:
-			ret = "Estado : Pressurizando";
-			break;
-		case 3:
-			ret = "Estado : Irrigando";
-			break;
-		case 4:
-			ret = "Estado : Pico Energético";
-			break;
-		case 5:
-			ret = "Estado : Alarme Pressão";
-			break;
-		case 6:
-			ret = "Estado : Fim de Irrigação";
-			break;
-		case 7:
-			ret = "Estado : Movimentando";
-			break;
-		case 8:
-			ret = "Estado : Alarme Alinhamento";
-			break;
-		case 9:
-			ret = "Estado : Painel no Manual";
-			break;
-		default:
-			ret = "Estado : Desconhecido";
-		}
-		return ret;
+		if (estado >= 0 && estado < lblStatusArr.length)
+			return lblStatusArr[estado];
+		return "Estado : Desconhecido";
 	}
 
 	public void sync() {
@@ -217,15 +189,8 @@ public class Irrigar extends JPanel {
 		m_k = new KModbus(m_port, m_addr);
 
 		int[] word = null;
-		try {
-			word = m_k.read(0, 2);
-		} catch (ModbusIOException e) {
-			System.out.println(commErr);
-			lblFooter.setText(commErr);
-		} catch (NoSuchPortException e) {
-			System.out.println(dispErr);
-			lblFooter.setText(dispErr);
-		}
+
+		word = m_k.read(0, 2);
 
 		if (word != null && (word[0] != 0 | word[1] != 0)) {
 
@@ -236,15 +201,8 @@ public class Irrigar extends JPanel {
 			}
 
 			int[] resp = null;
-			try {
-				resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
-			} catch (ModbusIOException e) {
-				e.printStackTrace();
-			} catch (NoSuchPortException e) {
-				e.printStackTrace();
-			} finally {
-				m_k = null;
-			}
+			resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
+			m_k = null;
 
 			if (resp != null) {
 				int[] anguloAux = new int[6];

@@ -157,7 +157,7 @@ public class Home extends JFrame implements ActionListener {
 		else if (e.getSource() == btnLamina)
 			tipoPainel = MasterFrame.panellaminas;
 
-		MasterFrame mf = new MasterFrame(home, "COM1", 1, tipoPainel);
+		MasterFrame mf = new MasterFrame(home, "COM8", 1, tipoPainel);
 		mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mf.pack();
 		mf.setVisible(true);

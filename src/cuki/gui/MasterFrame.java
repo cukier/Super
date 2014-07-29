@@ -1,7 +1,5 @@
 package cuki.gui;
 
-import gnu.io.NoSuchPortException;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -11,6 +9,8 @@ import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+
+import net.wimpi.modbus.util.ModbusUtil;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -22,8 +22,6 @@ import java.awt.Dimension;
 
 import cuki.proc.KModbus;
 import cuki.proc.Mapa;
-import net.wimpi.modbus.ModbusIOException;
-import net.wimpi.modbus.util.ModbusUtil;
 
 @SuppressWarnings("serial")
 public class MasterFrame extends JFrame {
@@ -61,7 +59,7 @@ public class MasterFrame extends JFrame {
 			jp.setBackground(Color.WHITE);
 			break;
 		case MasterFrame.panellaminas:
-			jp = new Laminas();
+			jp = new Laminas(m_port, m_addr, m_font);
 			break;
 		}
 
@@ -124,72 +122,49 @@ public class MasterFrame extends JFrame {
 		@SuppressWarnings("rawtypes")
 		SwingWorker worker = new SwingWorker() {
 			@Override
-			protected Object doInBackground() throws NoSuchPortException,
-					ModbusIOException {
-				int segundos = 30;
+			protected Object doInBackground() {
 				while (true) {
-					if (segundos == 30) {
-						segundos = 0;
+					int[] resp = null;
+					resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
 
-						try {
-							Thread.sleep(1000);
-						} catch (Exception e) {
-							e.printStackTrace();
+					if (resp != null) {
+						lblData.setText(resp[1] + "/" + resp[0] + " " + resp[2]
+								+ ":" + resp[3]);
+
+						int[] strId = new int[10];
+						for (int i = 0; i < strId.length; ++i)
+							strId[i] = resp[i + 4];
+
+						StringBuffer sb = new StringBuffer();
+						for (int i : strId) {
+							byte[] b = ModbusUtil.shortToRegister((short) i);
+							if (b[1] != 0)
+								sb.append((char) b[1]);
+							else
+								break;
+							if (b[0] != 0)
+								sb.append((char) b[0]);
+							else
+								break;
 						}
 
-						int[] resp = null;
-
-						resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
-
-						if (resp != null) {
-							int aux = 0;
-							for (int i : resp)
-								aux |= i;
-
-							if (aux == 0) {
-								lblData.setText("");
-								lblIdPivo
-										.setText("Erro de Conexão. Tentando de novo.");
-							} else {
-
-								String data = resp[1] + "/" + resp[0] + "    "
-										+ resp[2] + " : " + resp[3];
-
-								lblData.setText(data);
-
-								int[] strId = new int[10];
-								for (int i = 0; i < strId.length; ++i)
-									strId[i] = resp[i + 4];
-
-								StringBuffer sb = new StringBuffer();
-								for (int i : strId) {
-									byte[] b = ModbusUtil
-											.shortToRegister((short) i);
-									if (b[1] != 0)
-										sb.append((char) b[1]);
-									else
-										break;
-									if (b[0] != 0)
-										sb.append((char) b[0]);
-									else
-										break;
-								}
-
-								lblIdPivo.setText(sb.toString());
-							}
-						}
+						lblIdPivo.setText(sb.toString());
 					}
-
-					if (jp instanceof Irrigar) {
-						((Irrigar) jp).sync();
-					}
-
-					repaint();
-					++segundos;
 
 					try {
-						Thread.sleep(1000);
-					} catch (Exception e) {
+						Thread.sleep(1500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					if (jp instanceof Irrigar)
+						((Irrigar) jp).sync();
+					else if (jp instanceof Laminas)
+						((Laminas) jp).sync();
+
+					try {
+						Thread.sleep(1500);
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
