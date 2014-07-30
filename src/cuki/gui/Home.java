@@ -31,6 +31,9 @@ public class Home extends JFrame implements ActionListener {
 	private static JButton btnConfig;
 	private static JButton btnAdm;
 
+	private String m_port = "COM8";
+	private int m_addr = 1;
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -150,17 +153,19 @@ public class Home extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		int tipoPainel = 0;
-
+		MasterFrame mf = null;
 		if (e.getSource() == btnIrrigar)
-			tipoPainel = MasterFrame.panelIrrigar;
+			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panelIrrigar);
 		else if (e.getSource() == btnLamina)
-			tipoPainel = MasterFrame.panellaminas;
+			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panellaminas);
+		else if (e.getSource() == btnSetores)
+			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panelSetores);
 
-		MasterFrame mf = new MasterFrame(home, "COM8", 1, tipoPainel);
-		mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mf.pack();
-		mf.setVisible(true);
-		mf.start();
+		if (mf != null) {
+			mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			mf.pack();
+			mf.setVisible(true);
+			mf.start();
+		}
 	}
 }

@@ -125,11 +125,16 @@ public class MasterFrame extends JFrame {
 			protected Object doInBackground() {
 				while (true) {
 
-					k = new KModbus("COM8", 1);
+					k = new KModbus(m_port, m_addr);
 
-					int[] resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
-
-					k = null;
+					int[] resp = null;
+					try {
+						resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						k = null;
+					}
 
 					if (resp != null) {
 						lblData.setText(resp[1] + "/" + resp[0] + " " + resp[2]
