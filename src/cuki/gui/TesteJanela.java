@@ -90,7 +90,6 @@ public class TesteJanela extends JFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 
-			@Override
 			public void run() {
 
 				TesteJanela frame = new TesteJanela(Mapa.irrigarPanel,

@@ -26,7 +26,7 @@ public class ConfConn extends JPanel implements ActionListener {
 		String[] portas = PortLister.getPorts();
 
 		if (portas.length == 0) {
-			System.err.println("Não foi encotrada nenhuma porta");
+			System.err.println("Nï¿½o foi encotrada nenhuma porta");
 			System.exit(1);
 		}
 
@@ -53,7 +53,6 @@ public class ConfConn extends JPanel implements ActionListener {
 		add(addrCombo);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JComboBox) {
 

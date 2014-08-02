@@ -122,7 +122,7 @@ public class Laminas extends JPanel implements ActionListener {
 		for (int i = 0; i < tfAngulo.length; ++i) {
 			tfAngulo[i] = new JTextField();
 			tfAngulo[i].setFont(font);
-			tfAngulo[i].setText(String.valueOf(m_angulo[i]) + "°");
+			tfAngulo[i].setText(String.valueOf(m_angulo[i]) + "ï¿½");
 			tfAngulo[i].addActionListener(this);
 		}
 
@@ -177,7 +177,6 @@ public class Laminas extends JPanel implements ActionListener {
 		add(btnSend, "span,right");
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() instanceof JComboBox) {
@@ -280,7 +279,7 @@ public class Laminas extends JPanel implements ActionListener {
 		for (int i : m_porcento)
 			sb.append(" " + i + " %");
 		for (int i : m_angulo)
-			sb.append(" " + i + "°");
+			sb.append(" " + i + "ï¿½");
 
 		return sb.toString();
 	}
