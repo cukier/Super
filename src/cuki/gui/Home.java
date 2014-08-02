@@ -31,7 +31,7 @@ public class Home extends JFrame implements ActionListener {
 	private static JButton btnConfig;
 	private static JButton btnAdm;
 
-	private String m_port = "COM8";
+	private String m_port = "/dev/ttyS0";
 	private int m_addr = 1;
 
 	public static void main(String[] args) {
@@ -39,6 +39,7 @@ public class Home extends JFrame implements ActionListener {
 			public void run() {
 				try {
 					home = new Home();
+					home.pack();
 					home.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,7 +51,7 @@ public class Home extends JFrame implements ActionListener {
 	public Home() {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 365);
+		// setBounds(100, 100, 450, 365);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -72,7 +73,7 @@ public class Home extends JFrame implements ActionListener {
 		btnIrrigar.setBackground(Color.WHITE);
 		contentPane.add(btnIrrigar);
 
-		btnLamina = new JButton("L\u00E2minas");
+		btnLamina = new JButton("L\u00E2minas & Setores");
 		btnLamina.setSelectedIcon(new ImageIcon(Home.class
 				.getResource("/ico/nshower5.png")));
 		btnLamina.addActionListener(this);
@@ -95,7 +96,7 @@ public class Home extends JFrame implements ActionListener {
 		btnSetores.setForeground(Color.BLACK);
 		btnSetores.setFont(font);
 		btnSetores.setBackground(Color.WHITE);
-		contentPane.add(btnSetores);
+		// contentPane.add(btnSetores);
 
 		btnDeslocamento = new JButton("Deslocamento a Seco");
 		btnDeslocamento.setSelectedIcon(new ImageIcon(Home.class
@@ -109,7 +110,7 @@ public class Home extends JFrame implements ActionListener {
 		btnDeslocamento.setForeground(Color.BLACK);
 		btnDeslocamento.setFont(font);
 		btnDeslocamento.setBackground(Color.WHITE);
-		contentPane.add(btnDeslocamento);
+		// contentPane.add(btnDeslocamento);
 
 		btnProgramador = new JButton("Programador");
 		btnProgramador.setSelectedIcon(new ImageIcon(Home.class
@@ -122,9 +123,10 @@ public class Home extends JFrame implements ActionListener {
 		btnProgramador.setForeground(Color.BLACK);
 		btnProgramador.setFont(font);
 		btnProgramador.setBackground(Color.WHITE);
-		contentPane.add(btnProgramador);
+		// contentPane.add(btnProgramador);
 
 		btnConfig = new JButton("Configura\u00E7\u00F5es");
+		btnConfig.addActionListener(this);
 		btnConfig.setSelectedIcon(new ImageIcon(Home.class
 				.getResource("/ico/nsettings3.png")));
 		btnConfig.setIcon(new ImageIcon(Home.class
@@ -147,7 +149,15 @@ public class Home extends JFrame implements ActionListener {
 		btnAdm.setForeground(Color.BLACK);
 		btnAdm.setFont(font);
 		btnAdm.setBackground(Color.WHITE);
-		contentPane.add(btnAdm);
+		// contentPane.add(btnAdm);
+	}
+
+	public void setPort(String port) {
+		m_port = port;
+	}
+
+	public void setAddr(int addr) {
+		m_addr = addr;
 	}
 
 	@Override
@@ -160,12 +170,25 @@ public class Home extends JFrame implements ActionListener {
 			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panellaminas);
 		else if (e.getSource() == btnSetores)
 			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panelSetores);
+		else if (e.getSource() == btnConfig)
+			mf = new MasterFrame(home, m_port, m_addr, MasterFrame.panelConfig);
+		/*
+		 * { JFrame frame = new JFrame ( ) ;
+		 * 
+		 * ConfConn l = new ConfConn ( this , new Font ( "Lucida Console" , Font
+		 * . PLAIN , 18 ) ) ;
+		 * 
+		 * frame . setContentPane ( l ) ; frame . setBackground ( Color . WHITE
+		 * ) ; frame . setDefaultCloseOperation ( JFrame . EXIT_ON_CLOSE ) ;
+		 * frame . pack ( ) ; frame . setVisible ( true ) ; }
+		 */
 
 		if (mf != null) {
 			mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			mf.pack();
 			mf.setVisible(true);
-			mf.start();
+			if (e.getSource() != btnConfig)
+				mf.start();
 		}
 	}
 }

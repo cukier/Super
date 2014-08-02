@@ -31,8 +31,6 @@ public class TesteJanela extends JFrame {
 
 		labels = new JLabel[legenth];
 
-		k = new KModbus("COM8", 1);
-
 		contentPane = new JPanel();
 		contentPane.setLayout(new MigLayout());
 
@@ -63,7 +61,17 @@ public class TesteJanela extends JFrame {
 			@Override
 			protected Object doInBackground() throws InterruptedException {
 				while (true) {
-					int[] resp = k.read(reference, legenth);
+					int[] resp = null;
+
+					k = new KModbus("COM8", 1);
+
+					try {
+						resp = k.read(reference, legenth);
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						k = null;
+					}
 
 					for (int i = 0; i < resp.length; ++i) {
 						labels[i].setText(String.valueOf(resp[i]));

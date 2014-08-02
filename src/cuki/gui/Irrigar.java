@@ -190,7 +190,11 @@ public class Irrigar extends JPanel {
 
 		int[] word = null;
 
-		word = m_k.read(0, 2);
+		try {
+			word = m_k.read(0, 2);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		if (word != null && (word[0] != 0 | word[1] != 0)) {
 
@@ -201,8 +205,13 @@ public class Irrigar extends JPanel {
 			}
 
 			int[] resp = null;
-			resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
-			m_k = null;
+			try {
+				resp = m_k.read(Mapa.irrigarPanel, Mapa.irrigarPanelLen);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				m_k = null;
+			}
 
 			if (resp != null) {
 				int[] anguloAux = new int[6];

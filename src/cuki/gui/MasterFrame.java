@@ -60,6 +60,9 @@ public class MasterFrame extends JFrame {
 		case MasterFrame.panellaminas:
 			jp = new Laminas(m_port, m_addr, m_font);
 			break;
+		case MasterFrame.panelConfig:
+			jp = new ConfConn(frame, m_font);
+			break;
 		}
 		jp.setBackground(Color.WHITE);
 
@@ -94,7 +97,7 @@ public class MasterFrame extends JFrame {
 		Component horizontalGlue = Box.createHorizontalGlue();
 		menuBar.add(horizontalGlue);
 
-		lblIdPivo = new JLabel("Conectando...");
+		lblIdPivo = new JLabel("");
 		lblIdPivo.setForeground(Color.LIGHT_GRAY);
 		lblIdPivo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIdPivo.setFont(new Font("Times New Roman", Font.PLAIN, 18));
@@ -103,7 +106,7 @@ public class MasterFrame extends JFrame {
 		Component rigidArea = Box.createRigidArea(new Dimension(20, 20));
 		menuBar.add(rigidArea);
 
-		lblData = new JLabel("00 : 00");
+		lblData = new JLabel("");
 		lblData.setForeground(Color.LIGHT_GRAY);
 		lblData.setHorizontalAlignment(SwingConstants.CENTER);
 		lblData.setFont(new Font("Times New Roman", Font.PLAIN, 18));
@@ -115,6 +118,7 @@ public class MasterFrame extends JFrame {
 		menuBar.add(rigidArea_1);
 
 		setContentPane(jp);
+		setUndecorated(true);
 	}
 
 	public void start() {
@@ -125,13 +129,22 @@ public class MasterFrame extends JFrame {
 			protected Object doInBackground() {
 				while (true) {
 
+					if (!isDisplayable())
+						return null;
+
+					System.out.println("Conectando em " + m_port + " : "
+							+ m_addr);
+
 					k = new KModbus(m_port, m_addr);
 
 					int[] resp = null;
 					try {
 						resp = k.read(Mapa.masterPanel, Mapa.masterPanelLen);
 					} catch (Exception e) {
-						e.printStackTrace();
+						// e.printStackTrace();
+						lblIdPivo.setText("");
+						lblData.setText("Não foi possível conectar : " + m_port);
+						return null;
 					} finally {
 						k = null;
 					}
@@ -168,9 +181,8 @@ public class MasterFrame extends JFrame {
 
 					if (jp instanceof Irrigar)
 						((Irrigar) jp).sync();
-					else if (jp instanceof Laminas)
-						((Laminas) jp).sync();
 
+					repaint();
 					try {
 						Thread.sleep(1500);
 					} catch (InterruptedException e) {

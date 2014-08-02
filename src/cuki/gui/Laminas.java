@@ -31,8 +31,9 @@ public class Laminas extends JPanel implements ActionListener {
 
 	private JButton btnSend = null;
 
-	private int m_addr;
-	private int m_nrSeotres;
+	private int m_addr = 0;
+	private int m_nrSeotres = 0;
+	private int m_nrSeotresAux = 0;
 	private int[] m_porcento = new int[6];
 	private int[] m_angulo = new int[6];
 
@@ -59,6 +60,8 @@ public class Laminas extends JPanel implements ActionListener {
 			m_k = null;
 		}
 
+		System.out.println(toString());
+
 		setLayout(new MigLayout(
 				"",
 				"[grow,center]10[grow,center]10[grow,center]30[grow,center]10[grow,center]10[grow,center]",
@@ -70,8 +73,9 @@ public class Laminas extends JPanel implements ActionListener {
 
 		comboBoxNrSetores = new JComboBox<String>(nrSetoresStr);
 		comboBoxNrSetores.setFont(font);
-		// comboBoxNrSetores.addActionListener(this);
-		add(comboBoxNrSetores, "wrap,growx");
+		comboBoxNrSetores.setSelectedItem(String.valueOf(m_nrSeotres));
+		comboBoxNrSetores.addActionListener(this);
+		add(comboBoxNrSetores, "wrap");
 
 		lbl = new JLabel("Setor");
 		lbl.setFont(font);
@@ -104,90 +108,66 @@ public class Laminas extends JPanel implements ActionListener {
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[0] = new JComboBox<String>(porcentagemStr);
-		comboSetor[0].setFont(font);
-		comboSetor[0].addActionListener(this);
+		for (int i = 0; i < comboSetor.length; ++i) {
+			comboSetor[i] = new JComboBox<String>(porcentagemStr);
+			comboSetor[i].setEnabled(i < m_nrSeotres);
+			comboSetor[i].setFont(font);
+			int aux = (int) (m_porcento[i] / 10) - 1;
+			if (aux > 0 && aux < porcentagemStr.length) {
+				comboSetor[i].setSelectedIndex(aux);
+			}
+			comboSetor[i].addActionListener(this);
+		}
+
+		for (int i = 0; i < tfAngulo.length; ++i) {
+			tfAngulo[i] = new JTextField();
+			tfAngulo[i].setFont(font);
+			tfAngulo[i].setText(String.valueOf(m_angulo[i]) + "°");
+			tfAngulo[i].addActionListener(this);
+		}
+
 		add(comboSetor[0], "growx");
 
-		tfAngulo[0] = new JTextField(m_angulo[0]);
-		tfAngulo[0].setFont(font);
-		tfAngulo[0].setText(String.valueOf(m_angulo[0]));
-		tfAngulo[0].addActionListener(this);
 		add(tfAngulo[0], "w 50");
 
 		lbl = new JLabel("Setor 2");
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[1] = new JComboBox<String>(porcentagemStr);
-		comboSetor[1].setFont(font);
-		comboSetor[1].addActionListener(this);
 		add(comboSetor[1], "growx");
 
-		tfAngulo[1] = new JTextField(m_angulo[1]);
-		tfAngulo[1].setFont(font);
-		tfAngulo[1].setText(String.valueOf(m_angulo[1]));
-		tfAngulo[1].addActionListener(this);
 		add(tfAngulo[1], "w 50,wrap");
 
 		lbl = new JLabel("Setor 3");
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[2] = new JComboBox<String>(porcentagemStr);
-		comboSetor[2].setFont(font);
-		comboSetor[2].addActionListener(this);
 		add(comboSetor[2], "growx");
 
-		tfAngulo[2] = new JTextField(m_angulo[2]);
-		tfAngulo[2].setFont(font);
-		tfAngulo[2].setText(String.valueOf(m_angulo[2]));
-		tfAngulo[2].addActionListener(this);
 		add(tfAngulo[2], "w 50");
 
 		lbl = new JLabel("Setor 4");
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[3] = new JComboBox<String>(porcentagemStr);
-		comboSetor[3].setFont(font);
-		comboSetor[3].addActionListener(this);
 		add(comboSetor[3], "growx");
 
-		tfAngulo[3] = new JTextField(m_angulo[3]);
-		tfAngulo[3].setFont(font);
-		tfAngulo[3].setText(String.valueOf(m_angulo[3]));
-		tfAngulo[3].addActionListener(this);
 		add(tfAngulo[3], "w 50,wrap");
 
 		lbl = new JLabel("Setor 5");
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[4] = new JComboBox<String>(porcentagemStr);
-		comboSetor[4].setFont(font);
-		comboSetor[4].addActionListener(this);
 		add(comboSetor[4], "growx");
 
-		tfAngulo[4] = new JTextField(m_angulo[4]);
-		tfAngulo[4].setFont(font);
-		tfAngulo[4].setText(String.valueOf(m_angulo[4]));
-		tfAngulo[4].addActionListener(this);
 		add(tfAngulo[4], "w 50");
 
 		lbl = new JLabel("Setor 6");
 		lbl.setFont(font);
 		add(lbl);
 
-		comboSetor[5] = new JComboBox<String>(porcentagemStr);
-		comboSetor[5].setFont(font);
-		comboSetor[5].addActionListener(this);
 		add(comboSetor[5], "growx");
 
-		tfAngulo[5] = new JTextField(m_angulo[5]);
-		tfAngulo[5].setFont(font);
-		tfAngulo[5].setText(String.valueOf(m_angulo[5]));
-		tfAngulo[5].addActionListener(this);
 		add(tfAngulo[5], "w 50,wrap");
 
 		btnSend = new JButton("Enviar");
@@ -195,32 +175,6 @@ public class Laminas extends JPanel implements ActionListener {
 		btnSend.setBackground(Color.WHITE);
 		btnSend.setFont(font);
 		add(btnSend, "span,right");
-	}
-
-	public void sync() {
-
-		m_k = new KModbus(m_port, m_addr);
-
-		try {
-			m_nrSeotres = m_k.getInt(Mapa.nrSetores);
-			m_porcento = m_k.read(Mapa.porcento6, 6);
-			m_angulo = m_k.read(Mapa.angulo6, 6);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			m_k = null;
-		}
-
-		for (int i = 0; i < comboSetor.length; ++i) {
-			comboSetor[i].setEnabled(i < m_nrSeotres);
-			int aux = (int) (m_porcento[i] / 10) - 1;
-			if (aux > 0 && aux < porcentagemStr.length) {
-				comboSetor[i].setSelectedIndex(aux);
-			}
-		}
-
-		comboBoxNrSetores.setSelectedIndex(m_nrSeotres - 1);
-		comboBoxNrSetores.addActionListener(this);
 	}
 
 	@Override
@@ -231,51 +185,104 @@ public class Laminas extends JPanel implements ActionListener {
 			@SuppressWarnings("rawtypes")
 			JComboBox cp = (JComboBox) e.getSource();
 			String aux = (String) cp.getSelectedItem();
-
-			if (e.getSource() == comboBoxNrSetores) {
-				m_nrSeotres = Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[0]) {
-				m_porcento[0] = (Integer) Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[1]) {
-				m_porcento[1] = (Integer) Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[2]) {
-				m_porcento[2] = (Integer) Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[3]) {
-				m_porcento[3] = (Integer) Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[4]) {
-				m_porcento[4] = (Integer) Integer.valueOf(aux);
-			} else if (e.getSource() == comboSetor[5]) {
-				m_porcento[5] = (Integer) Integer.valueOf(aux);
-			}
-		} else if (e.getSource() instanceof JTextField) {
-			JTextField tf = (JTextField) e.getSource();
-			String aux = (String) tf.getText();
-			if (e.getSource() == tfAngulo[0]) {
-				m_angulo[0] = (Integer) Integer.valueOf(aux);
-			}
-		} else if (e.getSource() instanceof JButton) {
-
 			m_k = new KModbus(m_port, m_addr);
-
 			try {
-				m_k.send(Mapa.nrSetores, m_nrSeotres);
-				System.out.println("Escrito " + m_nrSeotres + " em "
-						+ Mapa.nrSetores);
-				m_k.send(Mapa.porcento6, m_porcento);
-				for (int i : m_porcento)
-					System.out.println("Escrito % " + i);
-				m_k.send(Mapa.angulo6, m_angulo);
-				for (int i : m_angulo)
-					System.out.println("Escrito ° " + i);
+				if (e.getSource() == comboBoxNrSetores) {
+					m_nrSeotres = Integer.valueOf(aux);
+					m_k.send(Mapa.nrSetores, m_nrSeotres);
+				} else if (e.getSource() == comboSetor[0]) {
+					m_porcento[0] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6, m_porcento[0]);
+				} else if (e.getSource() == comboSetor[1]) {
+					m_porcento[1] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6 + 1, m_porcento[1]);
+				} else if (e.getSource() == comboSetor[2]) {
+					m_porcento[2] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6 + 2, m_porcento[2]);
+				} else if (e.getSource() == comboSetor[3]) {
+					m_porcento[3] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6 + 3, m_porcento[3]);
+				} else if (e.getSource() == comboSetor[4]) {
+					m_porcento[4] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6 + 4, m_porcento[4]);
+				} else if (e.getSource() == comboSetor[5]) {
+					m_porcento[5] = (Integer) Integer.valueOf(aux);
+					m_k.send(Mapa.porcento6 + 5, m_porcento[5]);
+				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			} finally {
 				m_k = null;
 			}
+		} else if (e.getSource() instanceof JTextField) {
+			JTextField tf = (JTextField) e.getSource();
+			String aux = (String) tf.getText();
 
-			for (int i = 0; i < comboSetor.length; ++i)
-				comboSetor[i].setEnabled(i < m_nrSeotres);
+			m_k = new KModbus(m_port, m_addr);
+			try {
+				for (int i = 0; i < tfAngulo.length; ++i)
+					if (e.getSource() == tfAngulo[i]) {
+						m_angulo[i] = Integer.valueOf(aux);
+						m_k.send(Mapa.angulo6 + i, Integer.valueOf(aux));
+					}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				m_k = null;
+			}
+		} else if (e.getSource() instanceof JButton) {
+
+			// m_k = new KModbus(m_port, m_addr);
+			//
+			// try {
+			// m_k.send(Mapa.nrSetores, m_nrSeotres);
+			// m_k.send(Mapa.porcento6, m_porcento);
+			// m_k.send(Mapa.angulo6, m_angulo);
+			// } catch (Exception ex) {
+			// ex.printStackTrace();
+			// } finally {
+			// m_k = null;
+			// }
+			//
+			// for (int i = 0; i < comboSetor.length; ++i)
+			// comboSetor[i].setEnabled(i < m_nrSeotres);
 		}
+
+		m_k = new KModbus(m_port, m_addr);
+
+		try {
+			m_nrSeotres = m_k.getInt(Mapa.nrSetores);
+			m_porcento = m_k.read(Mapa.porcento6, 6);
+			m_angulo = m_k.read(Mapa.angulo6, 6);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			m_k = null;
+		}
+
+		if (m_nrSeotres != m_nrSeotresAux) {
+			m_nrSeotresAux = m_nrSeotres;
+			for (int i = 0; i < comboSetor.length; ++i) {
+				comboSetor[i].setEnabled(i < m_nrSeotres);
+			}
+		}
+
+		toString();
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("Porta: " + m_port + " add: " + m_addr + " nrSetores: "
+				+ m_nrSeotres);
+		for (int i : m_porcento)
+			sb.append(" " + i + " %");
+		for (int i : m_angulo)
+			sb.append(" " + i + "°");
+
+		return sb.toString();
 	}
 
 	public static void main(String[] args) {
@@ -288,7 +295,5 @@ public class Laminas extends JPanel implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
-
-		l.sync();
 	}
 }
