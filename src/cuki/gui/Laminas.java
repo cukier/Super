@@ -188,7 +188,7 @@ public class Laminas extends JPanel implements ActionListener {
 			try {
 				if (e.getSource() == comboBoxNrSetores) {
 					m_nrSeotres = Integer.valueOf(aux);
-					m_k.send(Mapa.nrSetores, m_nrSeotres);
+					m_k.send(Mapa.nrSetores, m_nrSeotres);					
 				} else if (e.getSource() == comboSetor[0]) {
 					m_porcento[0] = (Integer) Integer.valueOf(aux);
 					m_k.send(Mapa.porcento6, m_porcento[0]);
